@@ -1,0 +1,356 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > AdminController</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.jtspringproject.JtSpringProject.controller</a>
+</div>
+
+<h1>Coverage Summary for Class: AdminController (com.jtspringproject.JtSpringProject.controller)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">AdminController</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    94.7%
+  </span>
+  <span class="absValue">
+    (18/19)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    52.6%
+  </span>
+  <span class="absValue">
+    (50/95)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.jtspringproject.JtSpringProject.controller;
+&nbsp;
+&nbsp;import java.sql.*;
+&nbsp;import java.sql.PreparedStatement;
+&nbsp;import java.util.List;
+&nbsp;
+&nbsp;import javax.servlet.http.Cookie;
+&nbsp;import javax.servlet.http.HttpServletResponse;
+&nbsp;
+&nbsp;import org.springframework.beans.factory.annotation.Autowired;
+&nbsp;import org.springframework.stereotype.Controller;
+&nbsp;import org.springframework.ui.Model;
+&nbsp;import org.springframework.web.bind.annotation.*;
+&nbsp;import org.springframework.web.servlet.ModelAndView;
+&nbsp;
+&nbsp;import com.jtspringproject.JtSpringProject.models.Category;
+&nbsp;import com.jtspringproject.JtSpringProject.models.Product;
+&nbsp;import com.jtspringproject.JtSpringProject.models.User;
+&nbsp;import com.jtspringproject.JtSpringProject.services.categoryService;
+&nbsp;import com.jtspringproject.JtSpringProject.services.productService;
+&nbsp;import com.jtspringproject.JtSpringProject.services.userService;
+&nbsp;import com.mysql.cj.protocol.Resultset;
+&nbsp;
+&nbsp;import net.bytebuddy.asm.Advice.This;
+&nbsp;import net.bytebuddy.asm.Advice.OffsetMapping.ForOrigin.Renderer.ForReturnTypeName;
+&nbsp;
+&nbsp;@Controller
+&nbsp;@RequestMapping(&quot;/admin&quot;)
+<b class="fc">&nbsp;public class AdminController {</b>
+&nbsp;	
+&nbsp;	@Autowired
+&nbsp;	private userService userService;
+&nbsp;	@Autowired
+&nbsp;	private categoryService categoryService;
+&nbsp;	
+&nbsp;	@Autowired
+&nbsp;	private productService productService;
+&nbsp;	
+<b class="fc">&nbsp;	int adminlogcheck = 0;</b>
+<b class="fc">&nbsp;	String usernameforclass = &quot;&quot;;</b>
+&nbsp;	@RequestMapping(value = {&quot;/&quot;,&quot;/logout&quot;})
+&nbsp;	public String returnIndex() {
+<b class="fc">&nbsp;		adminlogcheck =0;</b>
+<b class="fc">&nbsp;		usernameforclass = &quot;&quot;;</b>
+<b class="fc">&nbsp;		return &quot;adminlogin&quot;;</b>
+&nbsp;	}
+&nbsp;	
+&nbsp;	
+&nbsp;	
+&nbsp;	@GetMapping(&quot;/index&quot;)
+&nbsp;	public String index(Model model) {
+<b class="fc">&nbsp;		if(usernameforclass.equalsIgnoreCase(&quot;&quot;))</b>
+<b class="fc">&nbsp;			return &quot;userLogin&quot;;</b>
+&nbsp;		else {
+<b class="nc">&nbsp;			model.addAttribute(&quot;username&quot;, usernameforclass);</b>
+<b class="nc">&nbsp;			return &quot;index&quot;;</b>
+&nbsp;		}
+&nbsp;			
+&nbsp;	}
+&nbsp;	
+&nbsp;	
+&nbsp;	@GetMapping(&quot;login&quot;)
+&nbsp;	public String adminlogin() {
+&nbsp;		
+<b class="fc">&nbsp;		return &quot;adminlogin&quot;;</b>
+&nbsp;	}
+&nbsp;	@GetMapping(&quot;Dashboard&quot;)
+&nbsp;	public String adminHome(Model model) {
+<b class="fc">&nbsp;		if(adminlogcheck==1)</b>
+<b class="nc">&nbsp;			return &quot;adminHome&quot;;</b>
+&nbsp;		else
+<b class="fc">&nbsp;			return &quot;redirect:/admin/login&quot;;</b>
+&nbsp;	}
+&nbsp;	@GetMapping(&quot;/loginvalidate&quot;)
+&nbsp;	public String adminlog(Model model) {
+&nbsp;		
+<b class="fc">&nbsp;		return &quot;adminlogin&quot;;</b>
+&nbsp;	}
+&nbsp;	@RequestMapping(value = &quot;loginvalidate&quot;, method = RequestMethod.POST)
+&nbsp;	public ModelAndView adminlogin( @RequestParam(&quot;username&quot;) String username, @RequestParam(&quot;password&quot;) String pass) {
+&nbsp;		
+<b class="fc">&nbsp;		User user=this.userService.checkLogin(username, pass);</b>
+&nbsp;		
+<b class="fc">&nbsp;		if(user!=null &amp;&amp; user.getRole().equals(&quot;ROLE_ADMIN&quot;)) {</b>
+<b class="nc">&nbsp;			ModelAndView mv = new ModelAndView(&quot;adminHome&quot;);</b>
+<b class="nc">&nbsp;			adminlogcheck=1;</b>
+<b class="nc">&nbsp;			mv.addObject(&quot;admin&quot;, user);</b>
+<b class="nc">&nbsp;			return mv;</b>
+&nbsp;		}
+&nbsp;		else {
+<b class="fc">&nbsp;			ModelAndView mv = new ModelAndView(&quot;adminlogin&quot;);</b>
+<b class="fc">&nbsp;			mv.addObject(&quot;msg&quot;, &quot;Please enter correct username and password&quot;);</b>
+<b class="fc">&nbsp;			return mv;</b>
+&nbsp;		}
+&nbsp;	}
+&nbsp;	@GetMapping(&quot;categories&quot;)
+&nbsp;	public ModelAndView getcategory() {
+<b class="fc">&nbsp;		if(adminlogcheck==0){</b>
+<b class="fc">&nbsp;			ModelAndView mView = new ModelAndView(&quot;adminlogin&quot;);</b>
+<b class="fc">&nbsp;			return mView;</b>
+&nbsp;		}
+&nbsp;		else {
+<b class="nc">&nbsp;			ModelAndView mView = new ModelAndView(&quot;categories&quot;);</b>
+<b class="nc">&nbsp;			List&lt;Category&gt; categories = this.categoryService.getCategories();</b>
+<b class="nc">&nbsp;			mView.addObject(&quot;categories&quot;, categories);</b>
+<b class="nc">&nbsp;			return mView;</b>
+&nbsp;		}
+&nbsp;	}
+&nbsp;	@RequestMapping(value = &quot;categories&quot;,method = RequestMethod.POST)
+&nbsp;	public String addCategory(@RequestParam(&quot;categoryname&quot;) String category_name)
+&nbsp;	{
+<b class="fc">&nbsp;		System.out.println(category_name);</b>
+&nbsp;		
+<b class="fc">&nbsp;		Category category =  this.categoryService.addCategory(category_name);</b>
+<b class="fc">&nbsp;		if(category.getName().equals(category_name)) {</b>
+<b class="nc">&nbsp;			return &quot;redirect:categories&quot;;</b>
+&nbsp;		}else {
+<b class="fc">&nbsp;			return &quot;redirect:categories&quot;;</b>
+&nbsp;		}
+&nbsp;	}
+&nbsp;	
+&nbsp;	@GetMapping(&quot;categories/delete&quot;)
+&nbsp;	public String removeCategoryDb(@RequestParam(&quot;id&quot;) int id) {
+<b class="fc">&nbsp;		if(this.categoryService.deleteCategory(id) == false){</b>
+<b class="nc">&nbsp;			System.out.println(&quot;Unable to delete!&quot;);</b>
+&nbsp;		}
+<b class="fc">&nbsp;		return &quot;redirect:/admin/categories&quot;;</b>
+&nbsp;	}	
+&nbsp;	
+&nbsp;	@GetMapping(&quot;categories/update&quot;)
+&nbsp;	public String updateCategory(@RequestParam(&quot;categoryid&quot;) int id, @RequestParam(&quot;categoryname&quot;) String categoryname)
+&nbsp;	{
+<b class="fc">&nbsp;		Category category = this.categoryService.updateCategory(id, categoryname);</b>
+<b class="fc">&nbsp;		return &quot;redirect:/admin/categories&quot;;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	
+&nbsp;//	 --------------------------Remaining --------------------
+&nbsp;	@GetMapping(&quot;products&quot;)
+&nbsp;	public ModelAndView getproduct() {
+<b class="fc">&nbsp;		if(adminlogcheck==0){</b>
+<b class="fc">&nbsp;			ModelAndView mView = new ModelAndView(&quot;adminlogin&quot;);</b>
+<b class="fc">&nbsp;			return mView;</b>
+&nbsp;		}
+&nbsp;		else {
+<b class="nc">&nbsp;			ModelAndView mView = new ModelAndView(&quot;products&quot;);</b>
+&nbsp;
+<b class="nc">&nbsp;			List&lt;Product&gt; products = this.productService.getProducts();</b>
+&nbsp;
+<b class="nc">&nbsp;			if (products.isEmpty()) {</b>
+<b class="nc">&nbsp;				mView.addObject(&quot;msg&quot;, &quot;No products are available&quot;);</b>
+&nbsp;			} else {
+<b class="nc">&nbsp;				mView.addObject(&quot;products&quot;, products);</b>
+&nbsp;			}
+<b class="nc">&nbsp;			return mView;</b>
+&nbsp;		}
+&nbsp;
+&nbsp;	}
+&nbsp;	@GetMapping(&quot;products/add&quot;)
+&nbsp;	public ModelAndView addProduct() {
+<b class="fc">&nbsp;		ModelAndView mView = new ModelAndView(&quot;productsAdd&quot;);</b>
+<b class="fc">&nbsp;		List&lt;Category&gt; categories = this.categoryService.getCategories();</b>
+<b class="fc">&nbsp;		mView.addObject(&quot;categories&quot;,categories);</b>
+<b class="fc">&nbsp;		return mView;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@RequestMapping(value = &quot;products/add&quot;,method=RequestMethod.POST)
+&nbsp;	public String addProduct(@RequestParam(&quot;name&quot;) String name,@RequestParam(&quot;categoryid&quot;) int categoryId ,@RequestParam(&quot;price&quot;) int price,@RequestParam(&quot;weight&quot;) int weight, @RequestParam(&quot;quantity&quot;)int quantity,@RequestParam(&quot;description&quot;) String description,@RequestParam(&quot;productImage&quot;) String productImage) {
+<b class="nc">&nbsp;		System.out.println(categoryId);</b>
+<b class="nc">&nbsp;		Category category = this.categoryService.getCategory(categoryId);</b>
+<b class="nc">&nbsp;		Product product = new Product();</b>
+<b class="nc">&nbsp;		product.setId(categoryId);</b>
+<b class="nc">&nbsp;		product.setName(name);</b>
+<b class="nc">&nbsp;		product.setCategory(category);</b>
+<b class="nc">&nbsp;		product.setDescription(description);</b>
+<b class="nc">&nbsp;		product.setPrice(price);</b>
+<b class="nc">&nbsp;		product.setImage(productImage);</b>
+<b class="nc">&nbsp;		product.setWeight(weight);</b>
+<b class="nc">&nbsp;		product.setQuantity(quantity);</b>
+<b class="nc">&nbsp;		this.productService.addProduct(product);</b>
+<b class="nc">&nbsp;		return &quot;redirect:/admin/products&quot;;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@GetMapping(&quot;products/update/{id}&quot;)
+&nbsp;	public ModelAndView updateproduct(@PathVariable(&quot;id&quot;) int id) {
+&nbsp;		
+<b class="fc">&nbsp;		ModelAndView mView = new ModelAndView(&quot;productsUpdate&quot;);</b>
+<b class="fc">&nbsp;		Product product = this.productService.getProduct(id);</b>
+<b class="fc">&nbsp;		List&lt;Category&gt; categories = this.categoryService.getCategories();</b>
+&nbsp;
+<b class="fc">&nbsp;		mView.addObject(&quot;categories&quot;,categories);</b>
+<b class="fc">&nbsp;		mView.addObject(&quot;product&quot;, product);</b>
+<b class="fc">&nbsp;		return mView;</b>
+&nbsp;	}
+&nbsp;	
+&nbsp;	@RequestMapping(value = &quot;products/update/{id}&quot;, method = RequestMethod.POST)
+&nbsp;	public String updateProduct(@PathVariable(&quot;id&quot;) int id,
+&nbsp;								@RequestParam(&quot;name&quot;) String name,
+&nbsp;								@RequestParam(&quot;categoryid&quot;) int categoryId,
+&nbsp;								@RequestParam(&quot;price&quot;) int price,
+&nbsp;								@RequestParam(&quot;weight&quot;) int weight,
+&nbsp;								@RequestParam(&quot;quantity&quot;) int quantity,
+&nbsp;								@RequestParam(&quot;description&quot;) String description,
+&nbsp;								@RequestParam(&quot;productImage&quot;) String productImage) {
+&nbsp;
+<b class="fc">&nbsp;		Product productToUpdate = productService.getProduct(id);</b>
+<b class="fc">&nbsp;		if (productToUpdate != null) {</b>
+<b class="nc">&nbsp;			productToUpdate.setName(name);</b>
+<b class="nc">&nbsp;			productToUpdate.setCategory(categoryService.getCategory(categoryId));</b>
+<b class="nc">&nbsp;			productToUpdate.setPrice(price);</b>
+<b class="nc">&nbsp;			productToUpdate.setWeight(weight);</b>
+<b class="nc">&nbsp;			productToUpdate.setQuantity(quantity);</b>
+<b class="nc">&nbsp;			productToUpdate.setDescription(description);</b>
+<b class="nc">&nbsp;			productToUpdate.setImage(productImage);</b>
+<b class="nc">&nbsp;			productService.updateProduct(id, productToUpdate);</b>
+<b class="nc">&nbsp;			return &quot;redirect:/admin/products&quot;;</b>
+&nbsp;		} else {
+<b class="fc">&nbsp;			return &quot;redirect:/admin/products&quot;;</b>
+&nbsp;		}
+&nbsp;	}
+&nbsp;	
+&nbsp;	@GetMapping(&quot;products/delete&quot;)
+&nbsp;	public String removeProduct(@RequestParam(&quot;id&quot;) int id)
+&nbsp;	{
+<b class="fc">&nbsp;		this.productService.deleteProduct(id);</b>
+<b class="fc">&nbsp;		return &quot;redirect:/admin/products&quot;;</b>
+&nbsp;	}
+&nbsp;	
+&nbsp;	@PostMapping(&quot;products&quot;)
+&nbsp;	public String postproduct() {
+<b class="fc">&nbsp;		return &quot;redirect:/admin/categories&quot;;</b>
+&nbsp;	}
+&nbsp;	
+&nbsp;	@GetMapping(&quot;customers&quot;)
+&nbsp;	public ModelAndView getCustomerDetail() {
+<b class="fc">&nbsp;		if(adminlogcheck==0){</b>
+<b class="fc">&nbsp;			ModelAndView mView = new ModelAndView(&quot;adminlogin&quot;);</b>
+<b class="fc">&nbsp;			return mView;</b>
+&nbsp;		}
+&nbsp;		else {
+<b class="nc">&nbsp;			ModelAndView mView = new ModelAndView(&quot;displayCustomers&quot;);</b>
+<b class="nc">&nbsp;			List&lt;User&gt; users = this.userService.getUsers();</b>
+<b class="nc">&nbsp;			mView.addObject(&quot;customers&quot;, users);</b>
+<b class="nc">&nbsp;			return mView;</b>
+&nbsp;		}
+&nbsp;	}
+&nbsp;	
+&nbsp;	
+&nbsp;	
+&nbsp;	
+&nbsp;	
+&nbsp;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2023-12-03 21:52</div>
+</div>
+</body>
+</html>
